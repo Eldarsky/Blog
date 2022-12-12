@@ -8,7 +8,7 @@ def main(request):
     return  HttpResponse('Hello! Its my project')
 
 def data(request):
-    return HttpResponse(f"Дата: {datetime.now().date()}")
+    return HttpResponse(datetime.datetime.now())
 
 
 def goodby(request):
