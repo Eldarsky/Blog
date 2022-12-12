@@ -17,9 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from posts.views import main
-from posts.views import data
-from posts.views import goodby
+from posts.views import main, data, goodby
+
 
 
 
