@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from posts.views import main, data, goodby
+from products.views import *
 
 
 
@@ -27,4 +27,6 @@ urlpatterns = [
     path('', main),
     path('now_data/',data),
     path('goodby/', goodby),
+    path('products/', products_view),
+    path('products/<int:id>/', product_detail_view)
 ]
