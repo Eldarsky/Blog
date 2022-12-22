@@ -1,5 +1,9 @@
 from django.db import models
 
+
+
+class Category(models.Model):
+    title = models.CharField('Категория', max_length= 55)
 class Product(models.Model):
     title = models.CharField(max_length=80)
     description = models.TextField()
@@ -8,6 +12,7 @@ class Product(models.Model):
     photo = models.ImageField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    categories = models.ManyToManyField(Category)
 # Create your models here.
 
 class Review(models.Model):

@@ -15,7 +15,7 @@
             display: flex;
             justify-content: space-between;
         }
-        .reviews {
+        .review {
             margin-top: 30px;
         }
         .review_block {
@@ -25,11 +25,27 @@
             color: #242b2e;
             background: #cbcbcb;
         }
+        .product img{
+            width: 20%;
+        }
     </style>
     <div class="product">
+        {% if product.image %}
+            <img src="/media/{{ product.photo }}" alt="Ты попутал походу">
+        {% else %}
+            <img src="ef3-placeholder-image.jpg" alt="">
+        {% endif %}
         <h1>{{ product.title }}</h1>
-       <h3>{{ product.price }}</h3>
+        <h3>{{ product.price }}</h3>
         <h5>{{ product.description }}</h5>
+        <div class="categories">
+            {% for category in categories %}
+                <div class="category">
+                    <h6>{{ category.title }}</h6>
+                </div>
+            {% endfor %}
+        </div>
+
         <div class="dates">
             <h5>{{ product.created_at }}</h5>
             <h5>{{ product.updated_at }}</h5>
