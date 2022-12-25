@@ -26,7 +26,7 @@
             background: #cbcbcb;
         }
         .product img{
-            width: 20%;
+            width: 100%;
         }
     </style>
     <div class="product">
@@ -50,6 +50,11 @@
             <h5>{{ product.created_at }}</h5>
             <h5>{{ product.updated_at }}</h5>
         </div>
+        <form action="/products/{{ product.id }}/" method="post">
+            {% csrf_token %}
+            {{ review_form }}
+            <input type="submit" class="btn">
+        </form>
         <div class="review">
             {% for review in reviews %}
                 <div class="review_block">
