@@ -35,7 +35,11 @@
         {% else %}
             <img src="ef3-placeholder-image.jpg" alt="">
         {% endif %}
-        <h1>{{ product.title }}</h1>
+        <div style="display: flex; justify-content: space-evenly;">
+            <h1>{{ product.title }}</h1>
+            <h1>{{ product.auther.username }}</h1>
+        </div>
+
         <h3>{{ product.price }}</h3>
         <h5>{{ product.description }}</h5>
         <div class="categories">

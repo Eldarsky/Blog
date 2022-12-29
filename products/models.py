@@ -1,10 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 
 class Category(models.Model):
     title = models.CharField('Категория', max_length= 55)
 class Product(models.Model):
+    auther = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     title = models.CharField(max_length=80)
     description = models.TextField()
     price = models.IntegerField()
@@ -16,6 +18,7 @@ class Product(models.Model):
 # Create your models here.
 
 class Review(models.Model):
+    auther = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null= True, related_name='review')
     text = models.TextField()
     create_up = models.DateField(auto_now=True)

@@ -20,7 +20,7 @@ from django.urls import path
 from products.views import *
 from django.conf.urls.static import static
 from Blog import settings
-
+from users.views import login_view, logout_view, register_view
 
 
 
@@ -32,7 +32,10 @@ urlpatterns = [
     path('products/', products_view),
     path('products/<int:id>/', product_detail_view),
     path('products/create/', products_create_view),
-    path('categories/', categories_view)
+    path('categories/', categories_view),
+    path('users/login/', login_view),
+    path('users/logout/', logout_view),
+    path('users/register/', register_view)
 
 ]
 

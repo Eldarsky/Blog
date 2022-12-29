@@ -14,7 +14,7 @@ def data(request):
 
 
 def goodby(request):
-    return HttpResponse('Goodby user!')
+    return HttpResponse('Goodby users!')
 
 
 def main_view(request):
@@ -39,7 +39,8 @@ def products_view(request):
             products = Product.objects.all()
 
         return render(request, 'products/products.html', context={
-            'products': products
+            'products': products,
+            'users': None if request.user.is_anonymous else request.user
         })
 
 def product_detail_view(request, id):
@@ -95,6 +96,7 @@ def products_create_view(request):
 
         if form.is_valid():
             Product.objects.create(
+                auther=request.user,
                 title=form.cleaned_data.get('title'),
                 description=form.cleaned_data.get('description'),
                 price=form.cleaned_data.get('price', 0),
