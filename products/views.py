@@ -3,12 +3,12 @@ import datetime
 from django.shortcuts import HttpResponse, render, redirect
 from products.forms import ProductCreateForm, ReviewCreateForm
 from .models import Product, Review, Category
-from  django.views.generic import  ListView
+from  django.views.generic import  ListView, CreateView
 
 
 # Create your views here.
 
-PAGINTION_LIMIT = 3
+PAGINTION_LIMIT = 1
 def main(request):
     return  HttpResponse('Hello! Its my project')
 
@@ -94,24 +94,29 @@ class ProductDetailCBV(ListView):
 
         if form.is_valid():
             Review.objects.create(
-                author_id=request.user.id,
+                auther_id=request.user.id,
                 text=form.cleaned_data.get('text'),
                 product_id=kwargs['id'],
-                grade=form.cleaned_data.get('grade'),
             )
             return redirect(f'/products/{kwargs["id"]}/')
 
         else:
-            return render(request, self.template_name, context=self.get_context_data(form=form))
+            return render(request, self.template_name, context=self.get_context_data(
+                form=form,
+                product=Product.objects.get(id=kwargs['id'])
+            ))
 
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(id=kwargs["id"])
         reviews = Review.objects.filter(product_id=kwargs["id"])
-        categories = product.category.all()
+        categories = product.categories.all()
+
 
         return render(request, self.template_name, context=self.get_context_data(
             reviews=reviews,
-            categories=categories
+            categories=categories,
+            product=Product.objects.get(id=kwargs['id']),
+            review_form = ReviewCreateForm
         ))
 
 
@@ -120,28 +125,30 @@ class ProductDetailCBV(ListView):
 
 
 
+class ProductsCreateCBV(CreateView):
+    model = Product
+    form_class = ProductCreateForm
+    template_name = 'products/create.html'
 
-def products_create_view(request):
-    if request.method == 'GET':
-        return render(request, 'products/create.html', context={
-            'form': ProductCreateForm
-        })
+    def get_context_data(self, *, object_list=None, **kwargs):
+        return {
+            'user': self.request.user if not self.request.user.is_anonymous else None,
+            'form': kwargs['form'] if kwargs.get('form') else self.form_class
+        }
 
-    if request.method == 'POST':
-        form = ProductCreateForm(data=request.POST)
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(data=request.POST)
 
         if form.is_valid():
-            Product.objects.create(
-                auther=request.user,
+            self.model.objects.create(
                 title=form.cleaned_data.get('title'),
                 description=form.cleaned_data.get('description'),
-                price=form.cleaned_data.get('price', 0),
-                rating=form.cleaned_data.get('rating', 0)
+                price=form.cleaned_data.get('price'),
+                rating=form.cleaned_data.get('rating')
             )
-
-            return redirect('/products/')
+            return redirect('/products')
         else:
-            return render(request,'products/create.html',context={
-                'form':form
-            })
+            return render(request, self.template_name, context=self.get_context_data(form=form))
+
+
 

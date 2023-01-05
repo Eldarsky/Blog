@@ -48,7 +48,7 @@ def register_view(request):
                     password=form.cleaned_data.get('password2')
 
                 )
-                login(request.user)
+                login(request, user=user)
                 return redirect('/products/')
             else:
                 form.add_error('password2', 'bad request')

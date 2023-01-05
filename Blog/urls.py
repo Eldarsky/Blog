@@ -31,7 +31,7 @@ urlpatterns = [
     path('goodby/', goodby),
     path('products/', ProductsCBV.as_view()),
     path('products/<int:id>/', ProductDetailCBV.as_view()),
-    path('products/create/', products_create_view),
+    path('products/create/', ProductsCreateCBV.as_view()),
     path('categories/', CategoriesCBV.as_view()),
     path('users/login/', login_view),
     path('users/logout/', logout_view),
