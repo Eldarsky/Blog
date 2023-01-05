@@ -29,10 +29,10 @@ urlpatterns = [
     path('', main),
     path('now_data/',data),
     path('goodby/', goodby),
-    path('products/', products_view),
-    path('products/<int:id>/', product_detail_view),
+    path('products/', ProductsCBV.as_view()),
+    path('products/<int:id>/', ProductDetailCBV.as_view()),
     path('products/create/', products_create_view),
-    path('categories/', categories_view),
+    path('categories/', CategoriesCBV.as_view()),
     path('users/login/', login_view),
     path('users/logout/', logout_view),
     path('users/register/', register_view)
@@ -40,3 +40,4 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

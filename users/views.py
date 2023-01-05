@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from  users.forms import  LoginForm, RegisterForm
 from  django.contrib.auth.models import User
 
+
 def login_view(request):
     if request.method == 'GET':
         contex = {

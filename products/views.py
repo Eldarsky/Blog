@@ -3,6 +3,7 @@ import datetime
 from django.shortcuts import HttpResponse, render, redirect
 from products.forms import ProductCreateForm, ReviewCreateForm
 from .models import Product, Review, Category
+from  django.views.generic import  ListView
 
 
 # Create your views here.
@@ -22,85 +23,102 @@ def goodby(request):
 def main_view(request):
     return render(request, 'layouts/index.html')
 
-def categories_view(request):
-    if request.method == 'GET':
-        categories = Category.objects.all()
-        context = {
-            'categories': categories
+class CategoriesCBV(ListView):
+    model = Category
+    template_name = 'categories/index.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        return {
+            'categories': self.get_queryset(),
+            'user': self.request.user if not self.request.user.is_anonymous else None
         }
-        return render(request, 'categories/index.html', context=context)
 
-def products_view(request):
-    if request.method == 'GET':
-        category_id = request.GET.get('category_id')
-        search = request.GET.get('search')
-        page = int(request.GET.get('page', 1))
+class ProductsCBV(ListView):
+    queryset = Product.objects.all()
+    template_name = 'products/products.html'
 
-        if category_id:
-            products = Product.objects.filter(categories__in=[category_id])
-
-        else:
-            products = Product.objects.all()
-
-        max_page = products.__len__() // PAGINTION_LIMIT
-
-        if round(max_page) < max_page:
-            max_page = round(max_page) + 1
-
-        products = products[PAGINTION_LIMIT * (page-1):PAGINTION_LIMIT * page]
-
-        if search:
-            products = products.filter(title__icontains=search)
-
-
-
-
-        return render(request, 'products/products.html', context={
-            'products': products,
-            'users': None if request.user.is_anonymous else request.user,
-            'max_page': range(1,max_page+1)
-        })
-
-def product_detail_view(request, id):
-    if request.method == 'GET':
-        product = Product.objects.get(id=id)
-
-        data={
-            'product': product,
-            'reviews': Review.objects.filter(product=product),
-            'categories': product.categories.all(),
-            'review_form': ReviewCreateForm
+    def get_context_data(self, *, object_list=None, **kwargs):
+        return {
+            'products': kwargs['products'],
+            'max_page':kwargs['max_page'],
+            'users': kwargs['users']
         }
-        return render(request, 'products/detail.html', context= data)
+    def get(self, request, **kwargs):
+        if request.method == 'GET':
+            category_id = request.GET.get('category_id')
+            search = request.GET.get('search')
+            page = int(request.GET.get('page', 1))
 
-    if request.method == 'POST':
-        product = Product.objects.get(id=id)
-        form = ReviewCreateForm(data=request.POST)
+            if category_id:
+                products = Product.objects.filter(categories__in=[category_id])
+
+            else:
+                products = Product.objects.all()
+            if search:
+                products = products.filter(title__icontains=search)
+
+            max_page = products.__len__() // PAGINTION_LIMIT
+
+            if round(max_page) < max_page:
+                max_page = round(max_page) + 1
+
+            products = products[PAGINTION_LIMIT * (page - 1):PAGINTION_LIMIT * page]
+
+
+
+            return render(request, self.template_name, context=self.get_context_data(
+                products = products,
+                users=None if request.user.is_anonymous else request.user,
+                max_page=range(1, max_page + 1)
+
+            ))
+
+
+class ProductDetailCBV(ListView):
+    template_name = 'products/detail.html'
+    form_class = ReviewCreateForm
+    model = Product
+    pk_url_kwarg = 'id'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        return {
+            'product':kwargs['product'],
+            'reviews':kwargs['reviews'],
+            'categories':kwargs ['categories'],
+            'review_form':kwargs['review_form']
+
+        }
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(data=request.POST)
 
         if form.is_valid():
             Review.objects.create(
-                product_id=id,
-                text=form.cleaned_data.get('text')
+                author_id=request.user.id,
+                text=form.cleaned_data.get('text'),
+                product_id=kwargs['id'],
+                grade=form.cleaned_data.get('grade'),
             )
-            return redirect(f'/products/{id}/')
+            return redirect(f'/products/{kwargs["id"]}/')
+
         else:
-            return render(request, 'products/detail.html', context={
-                'product': product,
-                'reviews': Review.objects.filter(product=product),
-                'categories': product.categories.all(),
-                'review_form': form
+            return render(request, self.template_name, context=self.get_context_data(form=form))
 
-            })
+    def get(self, request, *args, **kwargs):
+        product = Product.objects.get(id=kwargs["id"])
+        reviews = Review.objects.filter(product_id=kwargs["id"])
+        categories = product.category.all()
+
+        return render(request, self.template_name, context=self.get_context_data(
+            reviews=reviews,
+            categories=categories
+        ))
 
 
 
-def categories_view(request):
-    if request.method == 'GET':
-        categories = Category.objects.all()
-        context = {
-            'categories': categories
-        }
-        return render(request, 'categories/index.html', context=context)
+
+
+
 
 
 def products_create_view(request):
